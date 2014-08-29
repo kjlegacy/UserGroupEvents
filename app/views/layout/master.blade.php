@@ -29,6 +29,18 @@
 		    // Animation complete.
 		  });
 		});
+
+		$( "#show-groups" ).click(function() {
+		  $( ".group-toggle" ).toggle( "slow", function() {
+		    // Animation complete.
+		  });
+		});
+
+		$( "#show-event-subgroups" ).click(function() {
+		  $( ".event-sub-toggle" ).toggle( "slow", function() {
+		    // Animation complete.
+		  });
+		});
 	</script>
 </body>
 </html>

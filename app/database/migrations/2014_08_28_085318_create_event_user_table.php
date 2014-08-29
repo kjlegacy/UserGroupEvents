@@ -15,8 +15,9 @@ class CreateEventUserTable extends Migration {
 		Schema::create('event_user', function(Blueprint $table)
 		{
 			$table->increments('id');
-			$table->integer('event_id');
+			$table->integer('myevent_id');
 			$table->integer('user_id');
+			$table->integer('status');
 
 			$table->timestamps();
 		});
