@@ -7,6 +7,16 @@ use Illuminate\Auth\Reminders\RemindableInterface;
 
 class User extends Eloquent implements UserInterface, RemindableInterface {
 
+	protected $fillable = array('name');
+
+	public function events() {
+		return $this->belongsToMany('Myevent', 'event_user');
+	}
+
+	public function subgroups() {
+		return $this->belongsToMany('Subgroup', 'subgroup_user');
+	}
+
 	use UserTrait, RemindableTrait;
 
 	/**
