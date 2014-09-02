@@ -1,24 +1,36 @@
 <?php
 
-/*
-|--------------------------------------------------------------------------
-| Application Routes
-|--------------------------------------------------------------------------
-|
-| Here is where you can register all of the routes for an application.
-| It's a breeze. Simply tell Laravel the URIs it should respond to
-| and give it the Closure to execute when that URI is requested.
-|
-*/
 
 Route::get('/', array(
 	'as' 	=> 'home', 
 	'uses'  => 'HomeController@getHome'
 ));
 
+Route::get('/user/{user}', array(
+	'as' 	=> 'user', 
+	'uses'  => 'HomeController@getUser'
+));
+
+Route::get('/group/{group}', array(
+	'as' 	=> 'group', 
+	'uses'  => 'HomeController@getGroup'
+));
+
+Route::get('/event/{event}', array(
+	'as' 	=> 'event', 
+	'uses'  => 'HomeController@getEvent'
+));
+
+// ------------------------------ //
+
 Route::post('/post-event', array(
 	'as' 	=> 'post-event',
 	'uses' 	=> 'HomeController@postEvent'
+));
+
+Route::get('/delete-event/{id}', array(
+	'as' 	=> 'delete-event',
+	'uses' 	=> 'HomeController@deleteEvent'
 ));
 
 Route::post('/post-group', array(
@@ -26,9 +38,29 @@ Route::post('/post-group', array(
 	'uses' 	=> 'HomeController@postGroup'
 ));
 
+Route::post('/detach-group', array(
+	'as' 	=> 'detach-group',
+	'uses' 	=> 'HomeController@detachGroup'
+));
+
+Route::get('/delete-group/{id}', array(
+	'as' 	=> 'delete-group',
+	'uses' 	=> 'HomeController@deleteGroup'
+));
+
 Route::post('/post-subgroup', array(
 	'as' 	=> 'post-subgroup',
 	'uses' 	=> 'HomeController@postSubgroup'
+));
+
+Route::post('/detach-subgroup', array(
+	'as' 	=> 'detach-subgroup',
+	'uses' 	=> 'HomeController@detachSubgroup'
+));
+
+Route::get('/delete-subgroup/{id}', array(
+	'as' 	=> 'delete-subgroup',
+	'uses' 	=> 'HomeController@deleteSubgroup'
 ));
 
 Route::post('/post-user', array(
@@ -36,11 +68,26 @@ Route::post('/post-user', array(
 	'uses' 	=> 'HomeController@postUser'
 ));
 
+Route::post('/detach-user', array(
+	'as' 	=> 'detach-user',
+	'uses' 	=> 'HomeController@detachUser'
+));
+
+Route::get('/delete-user/{id}', array(
+	'as' 	=> 'delete-user',
+	'uses' 	=> 'HomeController@deleteUser'
+));
+
 // --------------------------------------- //
 
 Route::post('/post-group-to-event', array(
 	'as' 	=> 'post-group-to-event',
 	'uses' 	=> 'HomeController@postGroupToEvent'
+));
+
+Route::post('/post-subgroup-to-event', array(
+	'as' 	=> 'post-subgroup-to-event',
+	'uses' 	=> 'HomeController@postSubgroupToEvent'
 ));
 
 Route::post('/post-subgroup-to-group', array(

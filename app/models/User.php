@@ -10,11 +10,11 @@ class User extends Eloquent implements UserInterface, RemindableInterface {
 	protected $fillable = array('name');
 
 	public function events() {
-		return $this->belongsToMany('Myevent', 'event_user');
+		return $this->belongsToMany('Myevent', 'event_user')->withPivot('status')->withTimestamps();
 	}
 
 	public function subgroups() {
-		return $this->belongsToMany('Subgroup', 'subgroup_user');
+		return $this->belongsToMany('Subgroup', 'subgroup_user')->withTimestamps();
 	}
 
 	use UserTrait, RemindableTrait;

@@ -17,14 +17,16 @@
 			<tr>
 				<th>ID</th>
 				<th>Event</th>
+				<th>Delete</th>
 				<th>Toggel Groups <input  id="show-groups" type="checkbox" checked="1"> | Toggle subgroups <input  id="show-event-subgroups" type="checkbox" checked="1"></th>
 			</tr>
 			@foreach($events as $event)
 			<tr>
 				<td>{{ $event->id }}</td>
-				<td>{{ $event->name }}</td>
+				<td><a href="{{ URL::action('event', $event->name) }}">{{ $event->name }}</a></td>
+				<td>(<a href="{{ URL::action('delete-event', $event->id) }}">x</a>)</td>
 				<td>
-					<table class="table table-bordered">
+					<table class="table">
 						<tr>
 							<th>Groups</th>
 							<th></th>
@@ -82,15 +84,18 @@
 			<table class="table">
 				<tr>
 					<th>ID</th>
+					<th></th>
 					<th>Group</th>
 					<th>Subgroup(s) <input  id="show-subgroups" type="checkbox" checked="1"></th>
+					<th>Delete</th>
 					<th>{{ Form::select('event', Myevent::lists('name', 'id'), null, array('class' =>' form-control')) }}</th>
 					<th><button class="btn btn-default">submit</button></th>
 				</tr>
 				@foreach($groups as $group)
 				<tr>
 					<td>{{ $group->id }}</td>
-					<td>{{ $group->name }}</td>
+					<td><input type="checkbox" name="group[]" id="{{$group->id}}" value="{{$group->id}}"></td>
+					<td><a href="{{ URL::action('group', $group->name) }}">{{ $group->name }}</a></td>
 					<td>
 						@foreach($group->subgroups as $group_subgroup)
 							<table>
@@ -100,12 +105,43 @@
 							</table>
 						@endforeach
 					</td>
-					<td><input type="checkbox" name="group[]" id="{{$group->id}}" value="{{$group->id}}"></td>
+					<td>(<a href="{{ URL::action('delete-group', $group->id) }}">x</a>)</td>
 				</tr>
 				@endforeach
 			</table>
 		</form>
+
+		<div class="row">
+		<div class="col-md-12">
+			<form action="{{ URL::route('post-subgroup-to-event') }}" method="post">
+			<table class="table">
+				<tr>
+					<th>Group</th>
+					<th>Subgroup</th>
+					<th>{{ Form::select('event', Myevent::lists('name', 'id'), null, array('class' =>' form-control')) }}</th>
+					<th><button class="btn btn-default">submit</button></th>
+				</tr>
+				@foreach($groups as $group)
+				<tr>
+					<td>{{ $group->name }}</td>
+					<td>
+						@foreach($group->subgroups as $group_subgroup)
+							<table>
+								<tr class="subgroup-toggle">
+									<td><input type="checkbox" name="subgroup[]" id="{{$group_subgroup->id}}" value="{{$group_subgroup->id}}"></td>
+									<td>{{ $group_subgroup->name }}</td>
+								</tr>
+							</table>
+						@endforeach
+					</td>
+				</tr>
+				@endforeach
+			</table>
+			</form>
+		</div>
+		</div>
 	</div>
+	
 </div> <!-- end first row -->
 <hr>
 <div class="row">
@@ -123,14 +159,17 @@
 			<table class="table">
 				<tr>
 					<th>ID</th>
+					<th></th>
 					<th>Subgroup</th>
 					<th>Users <input id="show-users" type="checkbox" checked="1"></th>
+					<th>Delete</th>
 					<th>{{ Form::select('group', Group::lists('name', 'id'), null, array('class' =>' form-control')) }}</th>
 					<th><button class="btn btn-default">submit</button></th>
 				</tr>
 			@foreach($subgroups as $subgroup)
 				<tr>
 					<td>{{ $subgroup->id }}</td>
+					<td><input type="checkbox" name="subgroup[]" id="{{$subgroup->id}}" value="{{$subgroup->id}}"></td>
 					<td>{{ $subgroup->name }}</td>
 					<td>
 						@foreach($subgroup->users as $subgroup_user)
@@ -141,7 +180,7 @@
 						</table>
 						@endforeach
 					</td>
-					<td><input type="checkbox" name="subgroup[]" id="{{$subgroup->id}}" value="{{$subgroup->id}}"></td>
+					<td>(<a href="{{ URL::action('delete-subgroup', $subgroup->id) }}">x</a>)</td>
 				</tr>
 			@endforeach
 			</table>
@@ -161,17 +200,44 @@
 			<table class="table">
 				<tr>
 					<th>ID</th>
+					<th></th>
 					<th>Users</th>
-					<th>Subgroups</th>
+					<th>Delete</th>
+					<th>Subgroup</th>
 					<th>{{ Form::select('subgroup', Subgroup::lists('name', 'id'), null, array('class' =>' form-control')) }}</th>
 					<th><button class="btn btn-default">submit</button></th>
 				</tr>
 				@foreach($users as $user)
 					<tr>
 						<td>{{ $user->id }}</td>
-						<td>{{ $user->name }}</td>
-						<td></td>
 						<td><input type="checkbox" name="user[]" id="{{$user->id}}" value="{{$user->id}}"></td>
+						<td><a href="{{ URL::action('user', $user->name) }}">{{ $user->name }}</a></td>
+						<td>(<a href="{{ URL::action('delete-user', $user->id) }}">x</a>)</td>
+						<td>
+						<table class="table">
+							@foreach($user->subgroups as $user_subgroup)
+							<tr>
+								<td>
+									@if(isset($user->subgroups))
+									<td>{{$user_subgroup->name}}</td>
+								@else 
+								@endif
+								</td>
+								<td>
+									@if(!isset($user_subgroup->groups))
+										<table>
+										@foreach($user_subgroup->groups as $group)
+											<tr>
+											<td>{{$group->name}}</td>
+											</tr>
+										@endforeach
+										</table>
+									@else 
+									@endif
+								</td>
+							</tr>
+							@endforeach
+						</table>
 					</tr>
 				@endforeach
 			</table>
@@ -205,4 +271,16 @@
 		</table>
 	</div>
 </div>
+
+
+@foreach($events as $e)
+@foreach($e->subgroups as $ad)
+
+			<ul>
+				<li>
+					{{$ad->name}}
+				</li>
+			</ul>
+@endforeach
+@endforeach
 @stop
