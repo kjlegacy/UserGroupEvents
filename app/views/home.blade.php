@@ -13,7 +13,7 @@
 			</div>
 		</form>
 
-		<table class="table">
+	<table class="table">
 	<tr>
 		<th>ID</th>
 		<th>Event</th>
