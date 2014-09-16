@@ -14,61 +14,67 @@
 		</form>
 
 		<table class="table">
-			<tr>
-				<th>ID</th>
-				<th>Event</th>
-				<th>Delete</th>
-				<th>Toggel Groups <input  id="show-groups" type="checkbox" checked="1"> | Toggle subgroups <input  id="show-event-subgroups" type="checkbox" checked="1"></th>
-			</tr>
-			@foreach($events as $event)
-			<tr>
-				<td>{{ $event->id }}</td>
-				<td><a href="{{ URL::action('event', $event->name) }}">{{ $event->name }}</a></td>
-				<td>(<a href="{{ URL::action('delete-event', $event->id) }}">x</a>)</td>
-				<td>
-					<table class="table">
-						<tr>
-							<th>Groups</th>
-							<th></th>
-						</tr>
-						@foreach($event->groups as $eventgroup)
-						<tr class="group-toggle">
-							<td>{{ $eventgroup->name }}</td>
-							<td>
-								<table class="table event-sub-toggle">
-									<tr>
-										<th>subgroups</th>
-										<th>users</th>
-									</tr>
-								@foreach($eventgroup->subgroups as $event_group_subgroups)
-									<tr>
-										<td>{{ $event_group_subgroups->name }}</td>
-										<td>
-											<table>
-											@foreach($event_group_subgroups->users as $e_g_s_user)
-												<tr>
-													<td>
-														<!-- if user status yes -->
-														<i class="glyphicon glyphicon-ok"></i> 
-														<!-- if user status pending -->
-														<!-- if user status no -->
-														{{ $e_g_s_user->name }}
-													</td>
-												</tr>
-											@endforeach
-											</table>
-										</td>
-									</tr>
-								@endforeach
-								</table>
-							</td>
-						</tr>
-						@endforeach
-					</table>
-				</td>
-			</tr>
+	<tr>
+		<th>ID</th>
+		<th>Event</th>
+		<th>Delete</th>
+		<th>Subgroups</th>
+	</tr>
+@foreach($events as $event)
+				<?php $event_id = $event->id; ?>
+	<tr>
+		<td>{{$event->id}}</td>
+		<td><a href="{{ URL::action('event', $event->name) }}">{{$event->name}}</a></td>
+		<td>(<a href="{{ URL::action('delete-event', $event->id) }}">x</a>)</td>
+		<td>
+			<table class="table table-bordered">
+			@if($event->subgroups)
+			@foreach($event->subgroups as $event_subgroup)
+				<?php $subgroup_id = $event_subgroup->id; ?>
+			@foreach($event_subgroup->groups as $subgroup_group)
+				<?php $group_id = $subgroup_group->id; ?>
+				<tr>
+					<td>
+						<table class="table table-bordered">
+							<tr>
+								<td>{{$subgroup_group->name}}</td>
+							</tr>
+							<tr>
+								<th>{{$event_subgroup->name}}</th>
+							</tr>
+						</table>
+					</td>
 			@endforeach
-		</table>
+					<td>
+					
+						<table class="table table-bordered">
+						@foreach($event_subgroup->users as $subgroup_user)
+							<tr>
+								<td>{{$subgroup_user->name}}</td>			
+								@foreach($subgroup_user->events as $status)
+								 @if($status->pivot->myevent_id == $event_id && $status->pivot->subgroup_id == $subgroup_id)
+                                            @if($status->pivot->status == 2)
+                                                <td style="width:30px"><div class="btn btn-warning"><i class="glyphicon glyphicon-question-sign"></i></div></td>
+                                            @elseif($status->pivot->status == 1)
+                                                <td style="width:30px"><div class="btn btn-success"><i class="glyphicon glyphicon-ok-circle"></i></div></td>
+                                            @elseif($status->pivot->status == 0)
+                                                <td style="width:30px"><a href="#"><div class="btn btn-danger"><i class="glyphicon glyphicon-remove-circle"></i></div></a></td>
+                                            @endif
+                                        @endif						
+                                @endforeach
+							</tr>
+						@endforeach
+						</table>
+					</td>
+				</tr>
+			@endforeach
+			@else 
+			@endif
+			</table>
+		</td>
+	</tr>
+@endforeach
+</table>
 	</div>
 	<div class="col-md-6 dgray">
 		<form action="{{ URL::route('post-group') }}" method="post">
@@ -250,37 +256,56 @@
 		<table class="table">
 			<tr>
 				<th>Users</th>
-				<th>Events</th>
-				<th>Attend</th>
-				<th>Status</th>
+				<th>Event</th>
 			</tr>
 			@foreach($users as $user)
 			<tr>
 				<td>{{ $user->name }}</td>
 				<td>
+					<table class="table table-bordered">
 					@foreach($user->events as $event)
-						<ul>
-							<li>{{$event->name}}</li>
-						</ul>
+						<tr>
+							@if($event->pivot->status == 2)
+                                <td style="width:30px"><div class="btn btn-warning"><i class="glyphicon glyphicon-question-sign"></i></div></td>
+                            @elseif($event->pivot->status == 1)
+                                <td style="width:30px"><div class="btn btn-success"><i class="glyphicon glyphicon-ok-circle"></i></div></td>
+                            @elseif($event->pivot->status == 0)
+                                <td style="width:30px"><a href="#"><div class="btn btn-danger"><i class="glyphicon glyphicon-remove-circle"></i></div></a></td>
+                            @endif
+							<td><a href="{{ URL::action('confirm', [$event->pivot->myevent_id, $event->pivot->user_id, $event->pivot->subgroup_id]) }}"><button>yes</button></a> <a href="{{ URL::action('deny', [$event->pivot->myevent_id, $event->pivot->user_id, $event->pivot->subgroup_id]) }}"><button>no</button></a></td>
+							<td>{{$event->name}}</td>
+
+							<td>
+								<table>
+									@foreach($event->groups as $group)
+									<tr>
+										<th>
+											{{$group->name}}
+										</th>
+									</tr>
+									<tr>
+										<td>
+											<table>
+												@foreach($group->subgroups as $subgroup)
+													<tr>
+													@if($subgroup->id == $event->pivot->subgroup_id)
+														<td>{{$subgroup->name}}</td>
+													@endif
+													</tr>
+												@endforeach
+											</table>
+										</td>
+									</tr>
+									@endforeach
+								</table>
+							</td>
+						</tr>
 					@endforeach
+					</table>
 				</td>
-				<td><button>yes</button><button>no</button></td>
-				<td>status</td>
 			</tr>
 			@endforeach
 		</table>
 	</div>
 </div>
-
-
-@foreach($events as $e)
-@foreach($e->subgroups as $ad)
-
-			<ul>
-				<li>
-					{{$ad->name}}
-				</li>
-			</ul>
-@endforeach
-@endforeach
 @stop

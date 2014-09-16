@@ -7,6 +7,7 @@ class HomeController extends BaseController {
 		$groups 	= Group::all();
 		$subgroups 	= Subgroup::all();
 		$users 		= User::all();
+		
 		return View::make('home')
 				->with('events', $events)
 				->with('groups', $groups)
@@ -48,6 +49,7 @@ class HomeController extends BaseController {
 	public function deleteEvent($id) {
 		$event = Myevent::find($id);
 		$event->groups()->detach();
+		$event->subgroups()->detach();
 		$event->users()->detach();
 		$event->delete();
 
@@ -69,15 +71,26 @@ class HomeController extends BaseController {
 		$event 	  = Myevent::find($event_id);
 		$group 	  = Group::find($group_id);
 
-		dd($group);
+		$event->groups()->detach($group_id);
 
-		$group->subgroups()->detach($subgroup_id);
+		foreach($event->subgroups as $subgroup) {
+
+			$event->subgroups()->detach($subgroup->id);
+		}
+
 		return Redirect::to('/');
 	}
 
 	public function deleteGroup($id) {
 		$group = Group::find($id);
+		foreach($group->subgroups as $subgroups) {
+			$subgroups->events()->detach();
+			foreach($subgroups->users as $user) {
+				$user->events()->detach();
+			}
+		}
 		$group->subgroups()->detach();
+		$group->events()->detach();
 		$group->delete();
 
 		return Redirect::to('/');
@@ -104,8 +117,18 @@ class HomeController extends BaseController {
 
 	public function deleteSubgroup($id) {
 		$subgroup = Subgroup::find($id);
+
+		foreach($subgroup->users as $user) {
+			$user->events()->detach();
+		}
+
+		foreach ($subgroup->groups as $group) {
+			$group->events()->detach();
+		}
+
 		$subgroup->users()->detach();
 		$subgroup->groups()->detach();
+		$subgroup->events()->detach();
 		$subgroup->delete();
 
 		return Redirect::to('/');
@@ -163,6 +186,14 @@ class HomeController extends BaseController {
 					} 
 				}
 
+				foreach($group->subgroups as $subgroup) {
+					$subgroup->events()->attach($event->id);
+
+					foreach($subgroup->users as $user) {
+						$user->events()->attach(array($event->id => array('subgroup_id' => $subgroup->id, 'status' => 2)));
+					}
+				}
+
 				$group->events()->attach($event->id);
 			}
 		} else {
@@ -190,11 +221,11 @@ class HomeController extends BaseController {
 				
 				foreach($subgroup->users as $user) {
 					$user = User::find($user->id);
+					$user->events()->attach(array($event->id => array('subgroup_id' => $subgroup->id, 'status' => 2)));
 				}
 
 				$subgroup->events()->attach($event->id);
 				$group->events()->attach($event->id);
-				$user->events()->attach($event->id);
 			}
 		} else {
 			return Redirect::to('/')
@@ -255,5 +286,30 @@ class HomeController extends BaseController {
 		}
 		
 		return Redirect::to('/');
+	}
+
+
+// ----------------------------------- //
+// ------------Confirming------------- //
+// ----------------------------------- //
+
+	public function setStatusTrue($event_id,$user_id,$subgroup_id) {
+		DB::table('event_user')
+			->where('myevent_id', $event_id)
+			->where('user_id', $user_id)
+			->where('subgroup_id', $subgroup_id)
+			->update(array('status' => 1));
+
+		return Redirect::to(URL::previous());
+	}
+
+	public function setStatusFalse($event_id,$user_id,$subgroup_id) {
+		DB::table('event_user')
+			->where('myevent_id', $event_id)
+			->where('user_id', $user_id)
+			->where('subgroup_id', $subgroup_id)
+			->update(array('status' => 0));
+
+		return Redirect::to(URL::previous());
 	}
 }

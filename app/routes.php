@@ -99,3 +99,15 @@ Route::post('/post-user-to-subgroup', array(
 	'as' 	=> 'post-user-to-subgroup',
 	'uses' 	=> 'HomeController@postUserToSubgroup'
 ));
+
+// --------------------------------------- //
+
+Route::get('/confirm/{event_id}/{user_id}/{subgroup_id}', array(
+	'as' 	=> 'confirm',
+	'uses' 	=> 'HomeController@setStatusTrue'
+));
+
+Route::get('/deny/{event_id}/{user_id}/{subgroup_id}', array(
+	'as' 	=> 'deny',
+	'uses' 	=> 'HomeController@setStatusFalse'
+));

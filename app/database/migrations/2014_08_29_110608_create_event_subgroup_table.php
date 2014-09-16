@@ -17,7 +17,8 @@ class CreateEventSubgroupTable extends Migration {
 			$table->increments('id');
 			$table->integer('myevent_id');
 			$table->integer('subgroup_id');
-
+			
+			$table->integer('status');
 			$table->timestamps();
 		});
 	}

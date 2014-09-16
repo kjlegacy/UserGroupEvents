@@ -16,12 +16,10 @@ class CreateEventUserTable extends Migration {
 		{
 			$table->increments('id');
 			$table->integer('myevent_id');
-			$table->integer('group_id');
-			$table->integer('subgroup_id');
 			$table->integer('user_id');
+			$table->integer('subgroup_id');
 			
 			$table->integer('status');
-
 			$table->timestamps();
 		});
 	}

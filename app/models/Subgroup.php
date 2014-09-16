@@ -5,7 +5,7 @@ class Subgroup extends Eloquent {
 	protected $fillable = array('name');
 
 	public function events() {
-		return $this->belongsToMany('Myevent', 'event_subgroup')->withTimestamps();
+		return $this->belongsToMany('Myevent', 'event_subgroup')->withPivot('status')->withTimestamps();
 	}
 
 	public function groups() {

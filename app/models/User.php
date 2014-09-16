@@ -10,7 +10,7 @@ class User extends Eloquent implements UserInterface, RemindableInterface {
 	protected $fillable = array('name');
 
 	public function events() {
-		return $this->belongsToMany('Myevent', 'event_user')->withPivot('status')->withTimestamps();
+		return $this->belongsToMany('Myevent', 'event_user')->withPivot('subgroup_id','status')->withTimestamps();
 	}
 
 	public function subgroups() {

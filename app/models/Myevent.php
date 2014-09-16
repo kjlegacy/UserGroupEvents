@@ -13,6 +13,6 @@ class Myevent extends Eloquent {
 	}
 
 	public function users() {
-		return $this->belongsToMany('User', 'event_user')->withPivot('status')->withTimestamps();
+		return $this->belongsToMany('User', 'event_user')->withPivot('subgroup_id','status')->withTimestamps();
 	}
 }

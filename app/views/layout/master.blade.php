@@ -8,6 +8,8 @@
 	<script src="//code.jquery.com/jquery-1.11.0.min.js"></script>
 	<script src="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
 	{{ HTML::style('style.css') }}
+	{{ HTML::style('css/bootstrap-formhelpers.css') }}
+
 </head>
 <body>
 	@if(Session::has('error'))
@@ -16,7 +18,7 @@
 	<div class="content">
 		@yield('content')
 	</div>
-
+	
 	<script>
 		$( "#show-users" ).click(function() {
 		  $( ".name-toggle" ).toggle( "slow", function() {
@@ -41,6 +43,8 @@
 		    // Animation complete.
 		  });
 		});
+
+		
 	</script>
 </body>
 </html>
